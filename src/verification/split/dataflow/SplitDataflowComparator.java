@@ -212,7 +212,7 @@ public class SplitDataflowComparator {
 				+ "mCompAMdf" + "\t" + "mSegNdf" + "\t" + "xInMBdf" + "\t" + "xInRecdf" + "\t"
 				+ "xOutMBdf" + "\t" + "xOutRecdf" + "\t" + "xRecBMdf" + "\t"
 				+ "xRawBMdf" + "\t" + "xCompBMdf" + "\t" + "xRecAMdf" + "\t"
-				+ "xRawAMdf" + "\t" + "xCompAMdf" + "\t" + "xSegNdf" + "\t" + "eJobId" + "\t" + "rJobId"
+				+ "xRawAMdf" + "\t" + "xCompAMdf" + "\t" + "xSegNdf" + "\t" + "eJobId" + "\t" + "rJobId" + "\t"
 				
 				+ "mInMB" + "\t" + "mInRec" + "\t" + "mOutMB" + "\t"
 				+ "mOutRec" + "\t" + "mRecBM" + "\t" + "mRawBM" + "\t"
@@ -231,7 +231,7 @@ public class SplitDataflowComparator {
 				+ "mInputMBdf" + "\t" + "mOutRecdf" + "\t" + "mOutMBdf" + "\t"
 				+ "xShCompMBdf" + "\t" + "xShRawMBdf" + "\t" + "xInRecdf" + "\t"
 				+ "xInputMBdf" + "\t" + "xOutRecdf" + "\t" + "xOutMBdf" + "\t"
-				+ "eJobId" + "\t" + "rJobId"
+				+ "eJobId" + "\t" + "rJobId" + "\t"
 				
 				+ "mShCompMB" + "\t" + "mShRawMB" + "\t" + "mInRec" + "\t"  
 				+ "mInputMB" + "\t" + "mOutRec" + "\t" + "mOutMB" + "\t"
@@ -328,7 +328,7 @@ public class SplitDataflowComparator {
 				+ "\t" + String.format(f1, xRawAMdf) + "\t"
 				+ String.format(f1, xCompAMdf) + "\t" + xSegNdf + "\t"
 				
-				+ em.getJobId() + "\t" + rm.getJobId()
+				+ em.getJobId() + "\t" + rm.getJobId() + "\t"
 				
 				+ String.format(f1, mInMB) + "\t" + String.format(f1, mInRec)
 				+ "\t" + String.format(f1, mOutMB) + "\t"
@@ -419,7 +419,7 @@ public class SplitDataflowComparator {
 				+ String.format(f1, xInputMBdf) + "\t"
 				+ String.format(f1, xOutRecdf) + "\t" + String.format(f1, xOutMBdf)
 				
-				+ "\t" + er.getJobId() + "\t" + rr.getJobId()
+				+ "\t" + er.getJobId() + "\t" + rr.getJobId() + "\t"
 				
 				+ String.format(f1, mShCompMB) + "\t"
 				+ String.format(f1, mShRawMB) + "\t"

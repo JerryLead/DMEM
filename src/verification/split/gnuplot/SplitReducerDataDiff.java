@@ -101,29 +101,29 @@ public class SplitReducerDataDiff {
 				xOutMB.add(v);
 			
 			else if(title.equals("mShCompMBdf"))
-				mShCompMB.add(v);
+				mShCompMBdf.add(v);
 			else if(title.equals("mShRawMBdf"))
-				mShRawMB.add(v);
+				mShRawMBdf.add(v);
 			else if(title.equals("mInRecdf"))
-				mInRec.add(v);
+				mInRecdf.add(v);
 			else if(title.equals("mInputMBdf"))
-				mInputMB.add(v);
+				mInputMBdf.add(v);
 			else if(title.equals("mOutRecdf"))
-				mOutRec.add(v);
+				mOutRecdf.add(v);
 			else if(title.equals("mOutMBdf"))
-				mOutMB.add(v);
+				mOutMBdf.add(v);
 			else if(title.equals("xShCompMBdf"))
-				xShCompMB.add(v);
+				xShCompMBdf.add(v);
 			else if(title.equals("xShRawMBdf"))
-				xShRawMB.add(v);
+				xShRawMBdf.add(v);
 			else if(title.equals("xInRecdf"))
-				xInRec.add(v);
+				xInRecdf.add(v);
 			else if(title.equals("xInputMBdf"))
-				xInputMB.add(v);
+				xInputMBdf.add(v);
 			else if(title.equals("xOutRecdf"))
-				xOutRec.add(v);
+				xOutRecdf.add(v);
 			else if(title.equals("xOutMBdf"))
-				xOutMB.add(v);
+				xOutMBdf.add(v);
 		}
 	}
 	

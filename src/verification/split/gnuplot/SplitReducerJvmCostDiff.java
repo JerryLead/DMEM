@@ -12,75 +12,60 @@ import java.util.List;
 public class SplitReducerJvmCostDiff {
 																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																		
 																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																										
-	private List<Float> mOUdfList = new ArrayList<Float>();
-	private List<Float> xOUdfList = new ArrayList<Float>();
-	private List<Float> mNGUdfList = new ArrayList<Float>();
-	private List<Float> xNGUdfList = new ArrayList<Float>();
-	private List<Float> xHeapUdfList = new ArrayList<Float>();
-	private List<Float> RSSdfList = new ArrayList<Float>();
+	private List<Float> mOUdf = new ArrayList<Float>();
+	private List<Float> xOUdf = new ArrayList<Float>();
+	private List<Float> mNGUdf = new ArrayList<Float>();
+	private List<Float> xNGUdf = new ArrayList<Float>();
+	private List<Float> xHeapUdf = new ArrayList<Float>();
+	private List<Float> RSSdf = new ArrayList<Float>();
 	
-	private List<Float> mOUrtList = new ArrayList<Float>();
-	private List<Float> xOUrtList = new ArrayList<Float>();
-	private List<Float> mNGUrtList = new ArrayList<Float>();
-	private List<Float> xNGUrtList = new ArrayList<Float>();
-	private List<Float> xHeapUrtList = new ArrayList<Float>();
-	private List<Float> RSSrtList = new ArrayList<Float>();
+	private List<Float> mOUrt = new ArrayList<Float>();
+	private List<Float> xOUrt = new ArrayList<Float>();
+	private List<Float> mNGUrt = new ArrayList<Float>();
+	private List<Float> xNGUrt = new ArrayList<Float>();
+	private List<Float> xHeapUrt = new ArrayList<Float>();
+	private List<Float> RSSrt = new ArrayList<Float>();
 	
-	private List<Float> rmOUList = new ArrayList<Float>();
-	private List<Float> rxOUList = new ArrayList<Float>();
-	private List<Float> exOUList = new ArrayList<Float>();
-	private List<Float> rmNGUList = new ArrayList<Float>();
-	private List<Float> rxNGUList = new ArrayList<Float>();
-	private List<Float> exNGUList = new ArrayList<Float>();
-	private List<Float> rxHeapUList = new ArrayList<Float>();
-	private List<Float> rxRSSList = new ArrayList<Float>();
-	private List<Float> exHeapUList = new ArrayList<Float>();
+	private List<Float> rmOU = new ArrayList<Float>();
+	private List<Float> rxOU = new ArrayList<Float>();
+	private List<Float> exOU = new ArrayList<Float>();
+	private List<Float> rmNGU = new ArrayList<Float>();
+	private List<Float> rxNGU = new ArrayList<Float>();
+	private List<Float> exNGU = new ArrayList<Float>();
+	private List<Float> rxHeapU = new ArrayList<Float>();
+	private List<Float> rxRSS = new ArrayList<Float>();
+	private List<Float> exHeapU = new ArrayList<Float>();
 	
 	
 	public SplitReducerJvmCostDiff(File diffReducerFile) {
 		readFile(diffReducerFile);
-		sortList();
 	}
 
-	private void sortList() {
-		Collections.sort(mOUdfList);
-		Collections.reverse(mOUdfList);
+	public List<Pair> sortList(String title) {
 		
-		Collections.sort(xOUdfList);
-		Collections.reverse(xOUdfList);
-			
-		Collections.sort(mNGUdfList);
-		Collections.reverse(mNGUdfList);
+		List<Pair> result = null;
+	
+		if(title.equals("mOU"))
+			result = Pair.generatePairs(rmOU, mOUdf);
+		else if(title.equals("xOU"))
+			result = Pair.generatePairs(rxOU, xOUdf);
+		else if(title.equals("mNGU"))
+			result = Pair.generatePairs(rmNGU, mNGUdf);
+		else if(title.equals("xNGU"))
+			result = Pair.generatePairs(rxNGU, xNGUdf);
+		else if(title.equals("xHeapU"))
+			result = Pair.generatePairs(rxHeapU, xHeapUdf);
+		else if(title.equals("RSS"))
+			result = Pair.generatePairs(rxRSS, RSSdf);
 		
-		Collections.sort(xNGUdfList);
-		Collections.reverse(xNGUdfList);
 		
-		Collections.sort(xHeapUdfList);
-		Collections.reverse(xHeapUdfList);
+		Collections.sort(result);
 		
-		Collections.sort(RSSdfList);
-		Collections.reverse(RSSdfList);
-		
-		Collections.sort(mOUrtList);
-		Collections.reverse(mOUrtList);
-		
-		Collections.sort(xOUrtList);
-		Collections.reverse(xOUrtList);
-		
-		Collections.sort(mNGUrtList);
-		Collections.reverse(mNGUrtList);
-		
-		Collections.sort(xNGUrtList);
-		Collections.reverse(xNGUrtList);
-		
-		Collections.sort(xHeapUrtList);
-		Collections.reverse(xHeapUrtList);
-		
-		Collections.sort(RSSrtList);
-		Collections.reverse(RSSrtList);
+		return result;
 		
 	}
 
+	
 	private void readFile(File diffMapperFile) {
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(diffMapperFile));
@@ -107,98 +92,51 @@ public class SplitReducerJvmCostDiff {
 			return;
 		float v = Float.parseFloat(value);
 		if(title.equals("mOUdf"))
-			mOUdfList.add(v);
+			mOUdf.add(v);
 		else if(title.equals("xOUdf"))
-			xOUdfList.add(v);
+			xOUdf.add(v);
 		else if(title.equals("mNGUdf"))
-			mNGUdfList.add(v);
+			mNGUdf.add(v);
 		else if(title.equals("xNGUdf"))
-			xNGUdfList.add(v);
+			xNGUdf.add(v);
 		else if(title.equals("xHeapUdf"))
-			xHeapUdfList.add(v);
+			xHeapUdf.add(v);
 		else if(title.equals("RSSdf"))
-			RSSdfList.add(v);
+			RSSdf.add(v);
 		
 		else if(title.equals("mOUrt"))
-			mOUrtList.add(v);
+			mOUrt.add(v);
 		else if(title.equals("xOUrt"))
-			xOUrtList.add(v);
+			xOUrt.add(v);
 		else if(title.equals("mNGUrt"))
-			mNGUrtList.add(v);
+			mNGUrt.add(v);
 		else if(title.equals("xNGUrt"))
-			xNGUrtList.add(v);
+			xNGUrt.add(v);
 		else if(title.equals("xHeapUrt"))
-			xHeapUrtList.add(v);
+			xHeapUrt.add(v);
 		else if(title.equals("RSSrt"))
-			RSSrtList.add(v);
+			RSSrt.add(v);
 		
 		else if(title.equals("rmOU"))
-			rmOUList.add(v);
+			rmOU.add(v);
 		else if(title.equals("rxOU"))
-			rxOUList.add(v);
+			rxOU.add(v);
 		else if(title.equals("exOU"))
-			exOUList.add(v);
+			exOU.add(v);
 		else if(title.equals("rmNGU"))
-			rmNGUList.add(v);
+			rmNGU.add(v);
 		else if(title.equals("rxNGU"))
-			rxNGUList.add(v);
+			rxNGU.add(v);
 		else if(title.equals("exNGU"))
-			exNGUList.add(v);
+			exNGU.add(v);
 		else if(title.equals("rxHeapU"))
-			rxHeapUList.add(v);
+			rxHeapU.add(v);
 		else if(title.equals("rxRSS"))
-			rxRSSList.add(v);
+			rxRSS.add(v);
 		else if(title.equals("exHeapU"))
-			exHeapUList.add(v);
+			exHeapU.add(v);
 	}
 
-	public List<Float> getmOUdfList() {
-		return mOUdfList;
-	}
 
-	public List<Float> getxOUdfList() {
-		return xOUdfList;
-	}
-
-	public List<Float> getmNGUdfList() {
-		return mNGUdfList;
-	}
-
-	public List<Float> getxNGUdfList() {
-		return xNGUdfList;
-	}
-
-	public List<Float> getxHeapUdfList() {
-		return xHeapUdfList;
-	}
-
-	public List<Float> getRSSdfList() {
-		return RSSdfList;
-	}
-
-	public List<Float> getmOUrtList() {
-		return mOUrtList;
-	}
-
-	public List<Float> getxOUrtList() {
-		return xOUrtList;
-	}
-
-	public List<Float> getmNGUrtList() {
-		return mNGUrtList;
-	}
-
-	public List<Float> getxNGUrtList() {
-		return xNGUrtList;
-	}
-
-	public List<Float> getxHeapUrtList() {
-		return xHeapUrtList;
-	}
-
-	public List<Float> getRSSrtList() {
-		return RSSrtList;
-	}
-	
 	
 }

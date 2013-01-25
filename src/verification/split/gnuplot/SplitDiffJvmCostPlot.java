@@ -55,44 +55,24 @@ public class SplitDiffJvmCostPlot {
 	}
 
 	private void plotMapperDiff(SplitMapperJvmCostDiff mDiff, String diffImageDir) {
-		List<Float> xOUdfList = mDiff.getxOUdfList();
-		List<Float> xNGUdfList = mDiff.getxNGUdfList();
-		List<Float> RSSdfList = mDiff.getRSSdfList();
-		List<Float> xHeapUdfList = mDiff.getxHeapUdfList();
-		
-		String absImgDir = diffImageDir + "AbsoluteError/";
-		File absImgFile = new File(absImgDir);
-		if(!absImgFile.exists())
-			absImgFile.mkdirs();
-		
-		BufferedImage image = plotPNG(xOUdfList, "Mapper xOU Absolute Error", "xOU", "Difference (MB)");
-		outputImage(image, absImgDir + "Mapper-abs-xOU.png");
-		image = plotPNG(xNGUdfList, "Mapper xNGU Absolute Error", "xNGU", "Difference (MB)");
-		outputImage(image, absImgDir + "Mapper-abs-xNGU.png");
-		image = plotPNG(RSSdfList, "Mapper RSS Absolute Error", "RSS", "Difference (MB)");
-		outputImage(image, absImgDir + "Mapper-abs-RSS.png");
-		image = plotPNG(xHeapUdfList, "Mapper xHeapU Absolute Error", "xHeapU", "Difference (MB)");
-		outputImage(image, absImgDir + "Mapper-abs-xHeapU.png");
+		List<Pair> rxOUList = mDiff.sortList("rxOU");
+		List<Pair> rxNGUList = mDiff.sortList("rxNGU");
+		List<Pair> rxRSSList = mDiff.sortList("rxRSS");
+		List<Pair> xHeapUList = mDiff.sortList("rxHeapU");
 		
 		
-		List<Float> xOUrtList = mDiff.getxOUrtList();
-		List<Float> xNGUrtList = mDiff.getxNGUrtList();
-		List<Float> RSSrtList = mDiff.getRSSrtList();
-		List<Float> xHeapUrtList = mDiff.getxHeapUrtList();
+		File diffImgDirFile = new File(diffImageDir);
+		if(!diffImgDirFile.exists())
+			diffImgDirFile.mkdirs();
 		
-		String relImgDir = diffImageDir + "RelativeError/";
-		File relImgDirFile = new File(relImgDir);
-		if(!relImgDirFile.exists())
-			relImgDirFile.mkdirs();
-		
-		image = plotPNG(xOUrtList, "Mapper xOU Relative Error", "xOU", "Percentage Error (100%)");
-		outputImage(image, relImgDir + "Mapper-rel-xOU.png");
-		image = plotPNG(xNGUrtList, "Mapper xNGU Relative Error", "xNGU", "Percentage Error (100%)");
-		outputImage(image, relImgDir + "Mapper-rel-xNGU.png");
-		image = plotPNG(RSSrtList, "Mapper RSS Relative Error", "RSS", "Percentage Error (100%)");
-		outputImage(image, relImgDir + "Mapper-rel-RSS.png");
-		image = plotPNG(xHeapUrtList, "Mapper xHeapU Relative Error", "xHeapU", "Percentage Error (100%)");
-		outputImage(image, relImgDir + "Mapper-rel-xHeapU.png");
+		BufferedImage image = plotPNG(rxOUList, "Mapper xOU Real and Estimated", "xOU", "Bytes (MB)");
+		outputImage(image, diffImageDir + "Mapper-xOU.png");
+		image = plotPNG(rxNGUList, "Mapper xNGU Real and Estimated", "xNGU", "Bytes (MB)");
+		outputImage(image, diffImageDir + "Mapper-xNGU.png");
+		image = plotPNG(rxRSSList, "Mapper RSS Real and Estimated", "RSS", "Bytes (MB)");
+		outputImage(image, diffImageDir + "Mapper-RSS.png");
+		image = plotPNG(xHeapUList, "Mapper xHeapU Real and Estimated", "xHeapU", "Bytes (MB)");
+		outputImage(image, diffImageDir + "Mapper-xHeapU.png");
 	}
 	
 	private void outputImage(BufferedImage plotPNG, String title) {
@@ -107,72 +87,59 @@ public class SplitDiffJvmCostPlot {
 	}
 
 	private void plotReducerDiff(SplitReducerJvmCostDiff rDiff, String diffImageDir) {
-		List<Float> xOUdfList = rDiff.getxOUdfList();
-		List<Float> xNGUdfList = rDiff.getxNGUdfList();
-		List<Float> RSSdfList = rDiff.getRSSdfList();
-		List<Float> xHeapUdfList = rDiff.getxHeapUdfList();
+		List<Pair> xOUdfList = rDiff.sortList("xOU");
+		List<Pair> xNGUdfList = rDiff.sortList("xNGU");
+		List<Pair> RSSdfList = rDiff.sortList("RSS");
+		List<Pair> xHeapUdfList = rDiff.sortList("xHeapU");
 		
-		String absImgDir = diffImageDir + "AbsoluteError/";
+		String absImgDir = diffImageDir;
 		File absImgFile = new File(absImgDir);
 		if(!absImgFile.exists())
 			absImgFile.mkdirs();
 		
-		BufferedImage image = plotPNG(xOUdfList, "Reducer xOU Absolute Error", "xOU", "Difference (MB)");
-		outputImage(image, absImgDir + "Reducer-abs-xOU.png");
-		image = plotPNG(xNGUdfList, "Reducer xNGU Absolute Error", "xNGU", "Difference (MB)");
-		outputImage(image, absImgDir + "Reducer-abs-xNGU.png");
-		image = plotPNG(RSSdfList, "Reducer RSS Absolute Error", "RSS", "Difference (MB)");
-		outputImage(image, absImgDir + "Reducer-abs-RSS.png");
-		image = plotPNG(xHeapUdfList, "Reducer xHeapU Absolute Error", "xHeapU", "Difference (MB)");
-		outputImage(image, absImgDir + "Reducer-abs-xHeapU.png");
+		BufferedImage image = plotPNG(xOUdfList, "Reducer xOU Real and Estimated", "xOU", "Bytes (MB)");
+		outputImage(image, absImgDir + "Reducer-xOU.png");
+		image = plotPNG(xNGUdfList, "Reducer xNGU Real and Estimated", "xNGU", "Bytes (MB)");
+		outputImage(image, absImgDir + "Reducer-xNGU.png");
+		image = plotPNG(RSSdfList, "Reducer RSS Real and Estimated", "RSS", "Bytes (MB)");
+		outputImage(image, absImgDir + "Reducer-RSS.png");
+		image = plotPNG(xHeapUdfList, "Reducer xHeapU Real and Estimated", "xHeapU", "Bytes (MB)");
+		outputImage(image, absImgDir + "Reducer-xHeapU.png");
 		
-		
-		
-		List<Float> xOUrtList = rDiff.getxOUrtList();
-		List<Float> xNGUrtList = rDiff.getxNGUrtList();
-		List<Float> RSSrtList = rDiff.getRSSrtList();
-		List<Float> xHeapUrtList = rDiff.getxHeapUrtList();
-		
-		String relImgDir = diffImageDir + "RelativeError/";
-		File relImgDirFile = new File(relImgDir);
-		if(!relImgDirFile.exists())
-			relImgDirFile.mkdirs();
-		
-		image = plotPNG(xOUrtList, "Reducer xOU Relative Error", "xOU", "Percentage Error (100%)");
-		outputImage(image, relImgDir + "Reducer-rel-xOU.png");
-		image = plotPNG(xNGUrtList, "Reducer xNGU Relative Error", "xNGU", "Percentage Error (100%)");
-		outputImage(image, relImgDir + "Reducer-rel-xNGU.png");
-		image = plotPNG(RSSrtList, "Reducer RSS Relative Error", "RSS", "Percentage Error (100%)");
-		outputImage(image, relImgDir + "Reducer-rel-RSS.png");
-		image = plotPNG(xHeapUrtList, "Reducer xHeapU Relative Error", "xHeapU", "Percentage Error (100%)");
-		outputImage(image, relImgDir + "Reducer-rel-xHeapU.png");
 	}
 
-	private BufferedImage plotPNG(List<Float> rtList, String title, String explain, String yTitle) {
-		double[][] dataSet = new double[rtList.size()][1];
-		for(int i = 0; i < rtList.size(); i++)
-			dataSet[i][0] = rtList.get(i);
-		
+	private BufferedImage plotPNG(List<Pair> list, String title, String explain, String yTitle) {
+		double[][] dataSet = new double[list.size()][2];
+		for(int i = 0; i < list.size(); i++) {
+			dataSet[i][0] = list.get(i).getReal();
+			dataSet[i][1] = list.get(i).getEstimated();
+		}
 		
 		JavaPlot p = new JavaPlot();
             
         p.setTitle(title);
         p.getAxis("x").setLabel("Job Number");//, "Arial", 20);
-        //p.getAxis("y").setLabel("Percentage Error (100%)"); 
         p.getAxis("y").setLabel(yTitle); 
         //p.getAxis("x").setBoundaries(0, list.get(list.size() - 1).getTime());
-        p.setKey(JavaPlot.Key.TOP_RIGHT);
+        p.setKey(JavaPlot.Key.TOP_LEFT);
        
-        p.set("style", "histogram clustered");
-		p.set("style", "data histogram");
-		p.set("style", "fill solid 0.4 border");
+        //p.set("style", "histogram clustered");
+		//p.set("style", "data histogram");
+		//p.set("style", "fill solid 0.4 border");
 		p.set("xrange", "[0:]");
 		
         DataSetPlot plot = new DataSetPlot(dataSet);
-        plot.setTitle(explain);
-        plot.getPlotStyle().setStyle(Style.BOXES);
-        plot.getPlotStyle().setLineType(3);
+        plot.setTitle("real " + explain);
+        plot.getPlotStyle().setStyle(Style.LINES);
+        //plot.getPlotStyle().setLineType(3);
         plot.set("using", "1");
+        p.addPlot(plot);
+        
+        plot = new DataSetPlot(dataSet);
+        plot.setTitle("estimated " + explain);
+        plot.getPlotStyle().setStyle(Style.LINES);
+        //plot.getPlotStyle().setLineType(3);
+        plot.set("using", "2");
         p.addPlot(plot);
 
         PNGTerminal t = new PNGTerminal();  

@@ -159,45 +159,45 @@ public class SplitMapperDataDiff {
 			float v = Float.parseFloat(value);
 			v = Math.abs(v); // we want to get the absolute difference
 			if(title.equals("mInMBdf"))
-				mInMB.add(v);
+				mInMBdf.add(v);
 			else if(title.equals("mInRecdf"))
-				mInRec.add(v);
+				mInRecdf.add(v);
 			else if(title.equals("mOutMBdf"))
-				mOutMB.add(v);
+				mOutMBdf.add(v);
 			else if(title.equals("mOutRecdf"))
-				mOutRec.add(v);
+				mOutRecdf.add(v);
 			else if(title.equals("mRecBMdf"))
-				mRecBM.add(v);
+				mRecBMdf.add(v);
 			else if(title.equals("mRawBMdf"))
-				mRawBM.add(v);
+				mRawBMdf.add(v);
 			else if(title.equals("mCompBMdf"))
-				mCompBM.add(v);
+				mCompBMdf.add(v);
 			else if(title.equals("mRecAMdf"))
-				mRecAM.add(v);
+				mRecAMdf.add(v);
 			else if(title.equals("mRawAMdf"))
-				mRawAM.add(v);
+				mRawAMdf.add(v);
 			else if(title.equals("mCompAMdf"))
-				mCompAM.add(v);
+				mCompAMdf.add(v);
 			else if(title.equals("xInMBdf"))
-				xInMB.add(v);
+				xInMBdf.add(v);
 			else if(title.equals("xInRecdf"))
-				xInRec.add(v);
+				xInRecdf.add(v);
 			else if(title.equals("xOutMBdf"))
-				xOutMB.add(v);
+				xOutMBdf.add(v);
 			else if(title.equals("xOutRecdf"))
-				xOutRec.add(v);
+				xOutRecdf.add(v);
 			else if(title.equals("xRecBMdf"))
-				xRecBM.add(v);
+				xRecBMdf.add(v);
 			else if(title.equals("xRawBMdf"))
-				xRawBM.add(v);
+				xRawBMdf.add(v);
 			else if(title.equals("xCompBMdf"))
-				xCompBM.add(v);
+				xCompBMdf.add(v);
 			else if(title.equals("xRecAMdf"))
-				xRecAM.add(v);
+				xRecAMdf.add(v);
 			else if(title.equals("xRawAMdf"))
-				xRawAM.add(v);
+				xRawAMdf.add(v);
 			else if(title.equals("xCompAMdf"))
-				xCompAM.add(v);
+				xCompAMdf.add(v);
 			
 			else if(title.equals("mInMB"))
 				mInMB.add(v);
