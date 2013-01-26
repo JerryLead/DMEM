@@ -18,7 +18,8 @@ public class BufferModel {
 		long kvbufferBytes = maxMemUsage - recordCapacity;
 
 		recordCapacity /= 16;
-		long kvoffsetsLen = recordCapacity;
+		//each kvoffsets/kvindices is a integer, kvindices has three elements while kvoffsets has only one
+		long kvoffsetsLen = recordCapacity; 
 		long kvindicesLen = recordCapacity * 3;
 
 		long softBufferLimit = (long) (kvbufferBytes * spillper);

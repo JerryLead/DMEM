@@ -77,7 +77,8 @@ public class MapperEstimator {
 		estimatedMapper.setConfiguration(newConf);	
 		
 	}
-
+	
+	
 	public Mapper estimateNewMapper(List<Mapper> finishedMapperList, long newSplitSize) {
 		estimatedMapper = new Mapper();
 		
@@ -85,6 +86,10 @@ public class MapperEstimator {
 		long fSplitSize = fConf.getSplitSize();
 		int fSplitMB = (int) (fSplitSize / (1024 * 1024));
 		
+		/*
+		 * Filtering the finished mappers with too small split size, we don't use them to estimate the new mappers
+		 * If all the finished mappers have too small split size (below Configuration.split.size), we don't filter any of them.
+		 */
 		for(Mapper fMapper : finishedMapperList) {
 			//if((double)fMapper.getMapperCounters().getMap_input_bytes() / fSplitSize < 1.001 || 
 			//		(double)fSplitSize / fMapper.getMapperCounters().getMap_input_bytes() > 1.001)
@@ -103,8 +108,9 @@ public class MapperEstimator {
 		return estimatedMapper;
 	}
 
+	
 	private void computeConcretePhase(List<Mapper> finishedMapperList, long newSplitSize) {
-		
+		// new configurations
 		int io_sort_mb = newConf.getIo_sort_mb();
 		float io_sort_spill_percent = newConf.getIo_sort_spill_percent();
 		float io_sort_record_percent = newConf.getIo_sort_record_percent();
@@ -115,6 +121,7 @@ public class MapperEstimator {
 		long fmap_output_records = 0;
 		long fmap_output_bytes = 0;
 		
+		// calculate all the finished mappers' total counters except filtered ones
 		for (Mapper fMapper : finishedMapperList) {
 			fmap_input_records += fMapper.getMapperCounters().getMap_input_records();
 			fmap_input_bytes += fMapper.getMapperCounters().getMap_input_bytes();
@@ -126,6 +133,7 @@ public class MapperEstimator {
 		long map_output_records = 0;
 		long map_output_bytes = 0;
 		
+		// calculate new map I/O counters with fixed newSplitSize (64, 128, 256) or left split size (such as 11MB)
 		map_input_records = (long) ((double)fmap_input_records / fmap_input_bytes * newSplitSize);
 		map_output_records = (long) ((double)fmap_output_records / fmap_input_bytes * newSplitSize);
 		map_output_bytes = (long) ((double)fmap_output_bytes / fmap_input_bytes * newSplitSize);
@@ -143,6 +151,7 @@ public class MapperEstimator {
 		for(Mapper fMapper : finishedMapperList) 
 			fSpillList.add(fMapper.getSpill());
 		
+		// new mapper <output_bytes, output_records, bufferLimit, fSplillList> ==> new Spill
 		Spill eSpill = SpillModel.computeSpill(map_output_bytes, map_output_records, eBuffer, fSpillList);
 		//System.out.println();
 		

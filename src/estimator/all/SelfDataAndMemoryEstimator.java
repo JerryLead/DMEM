@@ -62,9 +62,9 @@ public class SelfDataAndMemoryEstimator {
 	
 	public static void main(String[] args) {
 		// -------------------------Initialize Job Information------------------------------------
-		String startJobId = "job_201301232026_0001";
+		String startJobId = "job_201301181454_0001";
 		
-		String jobName = "BigBuildInvertedIndex";
+		String jobName = "Big-uservisits_aggre-pig-50G";
 		
 		String baseDir = "/home/xulijie/MR-MEM/BigExperiments/";
 		//String baseDir = "/home/xulijie/MR-MEM/SampleExperiments/";
@@ -125,6 +125,7 @@ public class SelfDataAndMemoryEstimator {
 		try {
 			PrintWriter splitWriter = new PrintWriter(new BufferedWriter(new FileWriter(jobNameDir + File.separator + "splits.txt")));
 			
+			// ~/MR-MEM/BigExperiments/BigBuildInvertedIndex/split.txt
 			for(int i = 0; i < splitMBs.length; i++) {
 				int splitMB = splitMBs[i];
 				Configuration conf = fConf.copyConfiguration();
@@ -570,7 +571,9 @@ public class SelfDataAndMemoryEstimator {
 			if(isSplitSizeChanged) {
 				
 				//List<Long> splitsSizeList = InputSplitCalculator.getSplitsLength(newConf);
+				
 				List<Long> splitsSizeList = splitMap.get((int)(newConf.getSplitSize() / 1024 /1024));
+				//256:[268435456, 268435456, 268435456, 268435456, 268435456, ... 268435456, 120589425]
 				Map<Integer, Mapper> cacheNewMapper = new HashMap<Integer, Mapper>();
 				
 				for(int i = 0; i < splitsSizeList.size(); i++) {

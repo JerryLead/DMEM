@@ -1,8 +1,5 @@
 package verification.split.all;
 
-
-import verification.gnuplot.DiffDataflowPlot;
-import verification.gnuplot.DiffJvmCostPlot;
 import verification.split.gnuplot.SplitDiffDataflowPlot;
 import verification.split.gnuplot.SplitDiffJvmCostPlot;
 import verification.split.jvmcost.SplitJvmCostComparator;
@@ -23,7 +20,7 @@ public class VisualizerForSplitDataJvmComp {
 		//String jobName = "BigTeraSort-36GB";
 		//String jobName = "SampleTeraSort-1G";
 		//String jobName = "Big-uservisits_aggre-pig-50G";
-		String jobName = "BigBuildInvertedIndex";
+		String jobName = "Big-uservisits_aggre-pig-50G";
 		
 		String baseDir = "/home/xulijie/MR-MEM/BigExperiments/";
 		//String baseDir = "/home/xulijie/MR-MEM/SampleExperiments/";
