@@ -51,10 +51,10 @@ public class MapperEstimator {
 				io_sort_record_percent);
 		//System.out.println();
 		
-		Spill eSpill = SpillModel.computeSpill(map_output_bytes, map_output_records, eBuffer, finishedMapper.getSpill());
+		Spill eSpill = SpillModel.computeSpill(map_output_bytes, map_output_records, eBuffer, finishedMapper.getSpill(), fConf, newConf);
 		//System.out.println();
 		
-		Merge eMerge = MergeModel.computeMerge(newCombine, mapred_reduce_tasks, min_num_spills_for_combine, eSpill, finishedMapper, fConf);
+		Merge eMerge = MergeModel.computeMerge(eSpill, finishedMapper, fConf, newConf);
 		
 		// set the estimated infos
 		MapperCounters eCounters = estimatedMapper.getMapperCounters();
@@ -152,14 +152,14 @@ public class MapperEstimator {
 			fSpillList.add(fMapper.getSpill());
 		
 		// new mapper <output_bytes, output_records, bufferLimit, fSplillList> ==> new Spill
-		Spill eSpill = SpillModel.computeSpill(map_output_bytes, map_output_records, eBuffer, fSpillList);
+		Spill eSpill = SpillModel.computeSpill(map_output_bytes, map_output_records, eBuffer, fSpillList, fConf, newConf);
 		//System.out.println();
 		
 		List<Merge> fMergeList = new ArrayList<Merge>();
 		for(Mapper fMapper : finishedMapperList) 
 			fMergeList.add(fMapper.getMerge());
 		
-		Merge eMerge = MergeModel.computeMerge(mapred_reduce_tasks, eSpill, fSpillList, fMergeList, fConf.getMapred_reduce_tasks());
+		Merge eMerge = MergeModel.computeMerge(eSpill, fSpillList, fMergeList, fConf, newConf);
 		
 		// set the estiamted infos
 		MapperCounters eCounters = estimatedMapper.getMapperCounters();

@@ -205,9 +205,9 @@ public class SelfDataAndMemoryEstimator {
 							
 							//--------------------------Estimate the data flow---------------------------
 							//-----------------for debug-------------------------------------------------
-						    //System.out.println("[xmx = " + xmx + ", xms = " + xms + ", ismb = " + 
+						    //System.out.println("[split = " + splitMB + " [xmx = " + xmx + ", xms = " + xms + ", ismb = " + 
 							//		ismb + ", RN = " + reducer + "]");
-							//if(xmx != 4000 || ismb != 400 || reducer != 16 || xms != 1)
+							//if(splitMB != 256 || xmx != 1000 || ismb != 200 || reducer != 9 || xms != 0)
 							//	continue;
 							//if(xmx != 4000 || xms != 1 || ismb != 1000 || reducer != 9)
 							//	continue;

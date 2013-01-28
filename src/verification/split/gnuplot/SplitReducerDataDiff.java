@@ -74,7 +74,7 @@ public class SplitReducerDataDiff {
 	
 		else {
 			float v = Float.parseFloat(value);
-			v = Math.abs(v); // we want the absolute value
+			//v = Math.abs(v); // we want the absolute value
 			if(title.equals("mShCompMB"))
 				mShCompMB.add(v);
 			else if(title.equals("mShRawMB"))

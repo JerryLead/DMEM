@@ -13,10 +13,18 @@ import profile.task.mapper.SpillInfo;
 // if(eSpillInfoList.size() == 1) mergeInfo = spillInfo
 //  minSpillsForCombine = job.getInt("min.num.spills.for.combine", 3);
 public class MergeModel {
-	public static Merge computeMerge(boolean newCombine, int mapred_reduce_tasks, int min_num_spills_for_combine, Spill eSpill, Mapper finishedMapper, Configuration fConf) {
+	
+	public static Merge computeMerge(Spill eSpill, Mapper finishedMapper, Configuration fConf, Configuration newConf) {
+		
+		boolean newCombine = newConf.getMapreduce_combine_class() != null ? true : false;
+		int mapred_reduce_tasks = newConf.getMapred_reduce_tasks();
+		int min_num_spills_for_combine = newConf.getMin_num_spills_for_combine();
+		
 		int fMin_num_spills_for_combine = fConf.getMin_num_spills_for_combine();
 		boolean fCombine = fConf.getMapreduce_combine_class() != null ? true : false;
 		boolean fMergeCombine = finishedMapper.getSpill().getSpillInfoList().size() < fMin_num_spills_for_combine ? false : true;
+		if(finishedMapper.getSpill().getSpillInfoList().size() == 1)
+			fMergeCombine = true;
 		
 		Merge eMerge = new Merge();
 		List<MergeInfo> finishedMergeInfoList = finishedMapper.getMerge().getMergeInfoList();
@@ -38,7 +46,8 @@ public class MergeModel {
 		}
 		
 		List<SpillInfo> finishedSpillInfoList = finishedMapper.getSpill().getSpillInfoList();
-		long totalFinishedRecordsAfterCombine = 0;
+		
+		long totalFinishedRecordsAfterCombine = 0;  //spill
 		long totalFinishedRawLength = 0;
 		long totalFinishedCompressedLength = 0;
 		for(SpillInfo info: finishedSpillInfoList) {
@@ -84,25 +93,93 @@ public class MergeModel {
 			totalFinishedRawLengthAfterMerge += finishedRawLengthAfterMerge[i];
 			totalFinishedCompressedLengthAfterMerge += finishedCompressedLengthAfterMerge[i];
 		}
-		
+			
 		double merge_combine_record_ratio = (double) totalFinishedRecordsAfterMerge / totalFinishedRecordsBeforeMerge;
 		double merge_combine_bytes_ratio = (double) totalFinishedRawLengthAfterMerge / totalFinishedRawLengthBeforeMerge;
-		eMerge.setMerge_combine_record_ratio(merge_combine_record_ratio); //need more consideration
-		eMerge.setMerge_combine_bytes_ratio(merge_combine_bytes_ratio); // need more consideration
+		
+		// no combine() in merge phase
+		if(newCombine == false) {
+			merge_combine_record_ratio = 1;
+			merge_combine_bytes_ratio = 1;
+			
+			eMerge.setMerge_combine_record_ratio(merge_combine_record_ratio); 
+			eMerge.setMerge_combine_bytes_ratio(merge_combine_bytes_ratio); 
+			
+			// reducer number is not changed
+			if(mapred_reduce_tasks == size) {
+				for(int i = 0; i < size; i++) {
+					long recordsBeforeMerge = (long) ((double)finishedRecordsBeforeMerge[i] / totalFinishedRecordsBeforeMerge * eTotalRecordsAfterCombine);
+					long rawLengthBeforeMerge = (long) ((double)finishedRawLengthBeforeMerge[i] / totalFinishedRawLengthBeforeMerge * eTotalRawLength);
+					long compressedLengthBeforeMerge = (long) ((double)finishedCompressedLengthBeforeMerge[i] / totalFinishedCompressedLengthBeforeMerge * eTotalCompressedLength);
+					
+					long recordsAfterMerge = recordsBeforeMerge;
+					long rawLengthAfterMerge = rawLengthBeforeMerge;
+					long compressedLengthAfterMerge = compressedLengthBeforeMerge;
+					
+					MergeInfo newInfo = new MergeInfo(0, i, segmentsNum, rawLengthBeforeMerge, compressedLengthBeforeMerge);
+					newInfo.setAfterMergeItem(0, recordsBeforeMerge, recordsAfterMerge, rawLengthAfterMerge, compressedLengthAfterMerge);
+		
+					eMerge.addMergeInfo(newInfo);
+
+					/*
+					System.out.println("[BeforeMerge][Partition " + i + "]" + "<SegmentsNum = " + segmentsNum
+							+ ", RawLength = " + rawLengthBeforeMerge + ", CompressedLength = " + compressedLengthBeforeMerge + ">");
+				    System.out.println("[AfterMergeAndCombine][Partition " + i + "]<RecordsBeforeMerge = " 
+					  		+ recordsBeforeMerge + ", "
+					  		+ "RecordsAfterMerge = " + recordsAfterMerge + ", "
+					  		+ "RawLength = " + rawLengthAfterMerge + ", "
+					  		+ "CompressedLength = " + compressedLengthAfterMerge + ">");
+				    System.out.println();
+				    */
+				}
+			}
+			else {
+				long recordsBeforeMerge = eTotalRecordsAfterCombine / mapred_reduce_tasks;
+				long rawLengthBeforeMerge = eTotalRawLength / mapred_reduce_tasks;
+				long compressedLengthBeforeMerge = eTotalCompressedLength / mapred_reduce_tasks;
+				
+				long recordsAfterMerge = recordsBeforeMerge;
+				long rawLengthAfterMerge = rawLengthBeforeMerge;
+				long compressedLengthAfterMerge = compressedLengthBeforeMerge;
+				
+				for(int i = 0; i < mapred_reduce_tasks; i++) {
+					MergeInfo newInfo = new MergeInfo(0, i, segmentsNum, rawLengthBeforeMerge, compressedLengthBeforeMerge);
+					newInfo.setAfterMergeItem(0, recordsBeforeMerge, recordsAfterMerge, rawLengthAfterMerge, compressedLengthAfterMerge);		
+					eMerge.addMergeInfo(newInfo);
+					
+					/*
+					System.out.println("[BeforeMerge][Partition " + i + "]" + "<SegmentsNum = " + segmentsNum
+							+ ", RawLength = " + rawLengthBeforeMerge + ", CompressedLength = " + compressedLengthBeforeMerge + ">");
+				    System.out.println("[AfterMergeAndCombine][Partition " + i + "]<RecordsBeforeMerge = " 
+					  		+ recordsBeforeMerge + ", "
+					  		+ "RecordsAfterMerge = " + recordsAfterMerge + ", "
+					  		+ "RawLength = " + rawLengthAfterMerge + ", "
+					  		+ "CompressedLength = " + compressedLengthAfterMerge + ">");
+				    System.out.println();
+				    */
+				}
+			}
+			
+			return eMerge;
+		}
+
+		// combine() in merge phase
+		
 		
 		double eMerge_combine_record_ratio;
 		double eMerge_combine_bytes_ratio;
 		
-		if(newCombine == false || eMergeCombine == false) {
+		if(eMergeCombine == false) {
 			eMerge_combine_record_ratio = 1;
 			eMerge_combine_bytes_ratio = 1;
 		}
 		// combine in eMerge
-		else if(fCombine == true && fMergeCombine == false){
-			eMerge_combine_record_ratio = eSpill.getSpill_combine_record_ratio();
-			eMerge_combine_bytes_ratio = eSpill.getSpill_combine_bytes_ratio();
+		else if(fMergeCombine == false){
+			
+			eMerge_combine_record_ratio = eSpill.getSpill_combine_record_ratio() * 0.8;
+			eMerge_combine_bytes_ratio = eSpill.getSpill_combine_bytes_ratio() * 0.8;
 		}
-		// fCombine = true && fMergeCombine == true
+		// fMergeCombine == true
 		else {
 			eMerge_combine_record_ratio = 0;
 			eMerge_combine_bytes_ratio = 0;
@@ -111,18 +188,18 @@ public class MergeModel {
 		// reducer number is not changed
 		if(mapred_reduce_tasks == size) {
 			for(int i = 0; i < size; i++) {
-				long recordsBeforeMerge = (long) ((double)finishedRecordsBeforeMerge[i] / totalFinishedRecordsAfterCombine * eTotalRecordsAfterCombine);
-				long rawLengthBeforeMerge = (long) ((double)finishedRawLengthBeforeMerge[i] / totalFinishedRawLength * eTotalRawLength);
-				long compressedLengthBeforeMerge = (long) ((double)finishedCompressedLengthBeforeMerge[i] /totalFinishedCompressedLength * eTotalCompressedLength);
+				long recordsBeforeMerge = (long) ((double)finishedRecordsBeforeMerge[i] / totalFinishedRecordsBeforeMerge * eTotalRecordsAfterCombine);
+				long rawLengthBeforeMerge = (long) ((double)finishedRawLengthBeforeMerge[i] / totalFinishedRawLengthBeforeMerge * eTotalRawLength);
+				long compressedLengthBeforeMerge = (long) ((double)finishedCompressedLengthBeforeMerge[i] / totalFinishedCompressedLengthBeforeMerge * eTotalCompressedLength);
 				
 				long recordsAfterMerge;
 				long rawLengthAfterMerge;
 				long compressedLengthAfterMerge;
 				
 				if(eMerge_combine_record_ratio == 0 && eMerge_combine_bytes_ratio == 0) {
-					recordsAfterMerge = (long) ((double)finishedRecordsAfterMerge[i] / finishedRecordsBeforeMerge[i] * recordsBeforeMerge);
-					rawLengthAfterMerge = (long) ((double)finishedRawLengthAfterMerge[i] / finishedRawLengthBeforeMerge[i] * rawLengthBeforeMerge);
-					compressedLengthAfterMerge = (long) ((double)finishedCompressedLengthAfterMerge[i] / finishedCompressedLengthBeforeMerge[i] * compressedLengthBeforeMerge);
+					recordsAfterMerge = finishedRecordsAfterMerge[i];
+					rawLengthAfterMerge = finishedRawLengthAfterMerge[i];
+					compressedLengthAfterMerge = finishedCompressedLengthAfterMerge[i];
 				}
 				else {
 					recordsAfterMerge = (long) (eMerge_combine_record_ratio * recordsBeforeMerge);
@@ -158,11 +235,13 @@ public class MergeModel {
 			long compressedLengthAfterMerge;
 			
 			if(eMerge_combine_record_ratio == 0 && eMerge_combine_bytes_ratio == 0) {		
-				recordsAfterMerge = (long) ((double)totalFinishedRecordsAfterMerge / totalFinishedRecordsBeforeMerge * recordsBeforeMerge);
-				rawLengthAfterMerge = (long) ((double)totalFinishedRawLengthAfterMerge / totalFinishedRawLengthBeforeMerge * rawLengthBeforeMerge);
-				compressedLengthAfterMerge = (long) ((double)totalFinishedCompressedLengthAfterMerge / totalFinishedCompressedLengthBeforeMerge * compressedLengthBeforeMerge);
+				recordsAfterMerge = totalFinishedRecordsAfterMerge / mapred_reduce_tasks;
+				rawLengthAfterMerge = totalFinishedRawLengthAfterMerge / mapred_reduce_tasks;
+				compressedLengthAfterMerge = totalFinishedCompressedLengthAfterMerge / mapred_reduce_tasks;
 			}
+			
 			else {
+			
 				recordsAfterMerge = (long) (eMerge_combine_record_ratio * recordsBeforeMerge);
 				rawLengthAfterMerge = (long) (eMerge_combine_bytes_ratio * rawLengthBeforeMerge);
 				compressedLengthAfterMerge = (long) (eMerge_combine_bytes_ratio * compressedLengthBeforeMerge);
@@ -185,11 +264,24 @@ public class MergeModel {
 			    */
 			}
 		}
+		
+		if(merge_combine_record_ratio == 0 && merge_combine_bytes_ratio == 0) {
+			merge_combine_record_ratio = totalFinishedRecordsAfterMerge / totalFinishedRecordsBeforeMerge;
+			merge_combine_bytes_ratio = totalFinishedRawLengthAfterMerge / totalFinishedRawLengthBeforeMerge;
+		}
+		
+		eMerge.setMerge_combine_record_ratio(merge_combine_record_ratio); //need more consideration
+		eMerge.setMerge_combine_bytes_ratio(merge_combine_bytes_ratio); // need more consideration
+		
 		return eMerge;
 
 	}
 
-	public static Merge computeMerge(boolean newCombine, int mapred_reduce_tasks, int min_num_spills_for_combine, Spill eSpill, List<Spill> fSpillList, List<Merge> fMergeList, int fReducerNum, Configuration fConf) {
+	public static Merge computeMerge(Spill eSpill, List<Spill> fSpillList, List<Merge> fMergeList, Configuration fConf, Configuration newConf) {
+		boolean newCombine = newConf.getMapreduce_combine_class() != null ? true : false;
+		int mapred_reduce_tasks = newConf.getMapred_reduce_tasks();
+		int min_num_spills_for_combine = newConf.getMin_num_spills_for_combine();
+		int fReducerNum = fConf.getMapred_reduce_tasks();
 		
 		int fMin_num_spills_for_combine = fConf.getMin_num_spills_for_combine();
 		boolean fCombine = fConf.getMapreduce_combine_class() != null ? true : false;
@@ -229,7 +321,7 @@ public class MergeModel {
 		}
 		avgfSpillInfoNum /= fSpillList.size();
 				
-		if(avgfSpillInfoNum < fMin_num_spills_for_combine)
+		if(avgfSpillInfoNum < fMin_num_spills_for_combine && avgfSpillInfoNum != 1)
 			fMergeCombine = false;
 		else
 			fMergeCombine = true;
@@ -287,25 +379,92 @@ public class MergeModel {
 		
 		double merge_combine_record_ratio = (double) totalFinishedRecordsAfterMerge / totalFinishedRecordsBeforeMerge;
 		double merge_combine_bytes_ratio = (double) totalFinishedRawLengthAfterMerge / totalFinishedRawLengthBeforeMerge;
-		eMerge.setMerge_combine_record_ratio(merge_combine_record_ratio); //need more consideration
-		eMerge.setMerge_combine_bytes_ratio(merge_combine_bytes_ratio); // need more consideration
 		
+		// no combine() in merge phase
+		if(newCombine == false) {
+			merge_combine_record_ratio = 1;
+			merge_combine_bytes_ratio = 1;
+			
+			eMerge.setMerge_combine_record_ratio(merge_combine_record_ratio); 
+			eMerge.setMerge_combine_bytes_ratio(merge_combine_bytes_ratio); 
+			
+			// reducer number is not changed
+			if(mapred_reduce_tasks == size) {
+				for(int i = 0; i < size; i++) {
+					long recordsBeforeMerge = (long) ((double)finishedRecordsBeforeMerge[i] / totalFinishedRecordsBeforeMerge * eTotalRecordsAfterCombine);
+					long rawLengthBeforeMerge = (long) ((double)finishedRawLengthBeforeMerge[i] / totalFinishedRawLengthBeforeMerge * eTotalRawLength);
+					long compressedLengthBeforeMerge = (long) ((double)finishedCompressedLengthBeforeMerge[i] / totalFinishedCompressedLengthBeforeMerge * eTotalCompressedLength);
+					
+					long recordsAfterMerge = recordsBeforeMerge;
+					long rawLengthAfterMerge = rawLengthBeforeMerge;
+					long compressedLengthAfterMerge = compressedLengthBeforeMerge;
+					
+					MergeInfo newInfo = new MergeInfo(0, i, segmentsNum, rawLengthBeforeMerge, compressedLengthBeforeMerge);
+					newInfo.setAfterMergeItem(0, recordsBeforeMerge, recordsAfterMerge, rawLengthAfterMerge, compressedLengthAfterMerge);
+		
+					eMerge.addMergeInfo(newInfo);
+
+					/*
+					System.out.println("[BeforeMerge][Partition " + i + "]" + "<SegmentsNum = " + segmentsNum
+							+ ", RawLength = " + rawLengthBeforeMerge + ", CompressedLength = " + compressedLengthBeforeMerge + ">");
+				    System.out.println("[AfterMergeAndCombine][Partition " + i + "]<RecordsBeforeMerge = " 
+					  		+ recordsBeforeMerge + ", "
+					  		+ "RecordsAfterMerge = " + recordsAfterMerge + ", "
+					  		+ "RawLength = " + rawLengthAfterMerge + ", "
+					  		+ "CompressedLength = " + compressedLengthAfterMerge + ">");
+				    System.out.println();
+				    */
+				}
+			}
+			else {
+				long recordsBeforeMerge = eTotalRecordsAfterCombine / mapred_reduce_tasks;
+				long rawLengthBeforeMerge = eTotalRawLength / mapred_reduce_tasks;
+				long compressedLengthBeforeMerge = eTotalCompressedLength / mapred_reduce_tasks;
+				
+				long recordsAfterMerge = recordsBeforeMerge;
+				long rawLengthAfterMerge = rawLengthBeforeMerge;
+				long compressedLengthAfterMerge = compressedLengthBeforeMerge;
+				
+				for(int i = 0; i < mapred_reduce_tasks; i++) {
+					MergeInfo newInfo = new MergeInfo(0, i, segmentsNum, rawLengthBeforeMerge, compressedLengthBeforeMerge);
+					newInfo.setAfterMergeItem(0, recordsBeforeMerge, recordsAfterMerge, rawLengthAfterMerge, compressedLengthAfterMerge);		
+					eMerge.addMergeInfo(newInfo);
+					
+					/*
+					System.out.println("[BeforeMerge][Partition " + i + "]" + "<SegmentsNum = " + segmentsNum
+							+ ", RawLength = " + rawLengthBeforeMerge + ", CompressedLength = " + compressedLengthBeforeMerge + ">");
+				    System.out.println("[AfterMergeAndCombine][Partition " + i + "]<RecordsBeforeMerge = " 
+					  		+ recordsBeforeMerge + ", "
+					  		+ "RecordsAfterMerge = " + recordsAfterMerge + ", "
+					  		+ "RawLength = " + rawLengthAfterMerge + ", "
+					  		+ "CompressedLength = " + compressedLengthAfterMerge + ">");
+				    System.out.println();
+				    */
+				}
+			}
+			
+			return eMerge;
+		}
+		
+		// combine() in merge phase
 		double eMerge_combine_record_ratio;
 		double eMerge_combine_bytes_ratio;
 		
-		if(newCombine == false || eMergeCombine == false) {
+		int fSplitMB = (int) (fConf.getSplitSize() / 1024 / 1024);
+		int eSplitMB = (int) (newConf.getSplitSize() / 1024 / 1024);
+		
+		if(eMergeCombine == false) {
 			eMerge_combine_record_ratio = 1;
 			eMerge_combine_bytes_ratio = 1;
 		}
 		// combine in eMerge
-		else if(fCombine == true && fMergeCombine == false){
+		else if(fMergeCombine == false){
 			// We assume combine I/O ratio in spill phase is less than that in merge phase.
-			//
-			need more consideration
-			eMerge_combine_record_ratio = eSpill.getSpill_combine_record_ratio() * 0.5 + merge_combine_record_ratio * 0.5;
-			eMerge_combine_bytes_ratio = eSpill.getSpill_combine_bytes_ratio() * 0.5 + merge_combine_bytes_ratio * 0.5;
+			//need more consideration
+			eMerge_combine_record_ratio = eSpill.getSpill_combine_record_ratio() * 0.8;
+			eMerge_combine_bytes_ratio = eSpill.getSpill_combine_bytes_ratio() * 0.8;
 		}
-		// fCombine = true && fMergeCombine == true
+		// fMergeCombine == true
 		else {
 			eMerge_combine_record_ratio = 0;
 			eMerge_combine_bytes_ratio = 0;
@@ -323,9 +482,9 @@ public class MergeModel {
 				long compressedLengthAfterMerge;
 				
 				if(eMerge_combine_record_ratio == 0 && eMerge_combine_bytes_ratio == 0) {
-					recordsAfterMerge = (long) ((double)finishedRecordsAfterMerge[i] / finishedRecordsBeforeMerge[i] * recordsBeforeMerge);
-					rawLengthAfterMerge = (long) ((double)finishedRawLengthAfterMerge[i] / finishedRawLengthBeforeMerge[i] * rawLengthBeforeMerge);
-					compressedLengthAfterMerge = (long) ((double)finishedCompressedLengthAfterMerge[i] / finishedCompressedLengthBeforeMerge[i] * compressedLengthBeforeMerge);
+					recordsAfterMerge = finishedRecordsAfterMerge[i] / fMergeList.size() * eSplitMB / fSplitMB / mapred_reduce_tasks;
+					rawLengthAfterMerge = finishedRawLengthAfterMerge[i] / fMergeList.size() * eSplitMB / fSplitMB / mapred_reduce_tasks;
+					compressedLengthAfterMerge = finishedCompressedLengthAfterMerge[i] / fMergeList.size() * eSplitMB / fSplitMB / mapred_reduce_tasks;
 				}
 				else {
 					recordsAfterMerge = (long) (eMerge_combine_record_ratio * recordsBeforeMerge);
@@ -361,10 +520,10 @@ public class MergeModel {
 			long rawLengthAfterMerge;
 			long compressedLengthAfterMerge;
 			
-			if(eMerge_combine_record_ratio == 0 && eMerge_combine_bytes_ratio == 0) {		
-				recordsAfterMerge = (long) ((double)totalFinishedRecordsAfterMerge / totalFinishedRecordsBeforeMerge * recordsBeforeMerge);
-				rawLengthAfterMerge = (long) ((double)totalFinishedRawLengthAfterMerge / totalFinishedRawLengthBeforeMerge * rawLengthBeforeMerge);
-				compressedLengthAfterMerge = (long) ((double)totalFinishedCompressedLengthAfterMerge / totalFinishedCompressedLengthBeforeMerge * compressedLengthBeforeMerge);
+			if(eMerge_combine_record_ratio == 0 && eMerge_combine_bytes_ratio == 0) {
+				recordsAfterMerge = totalFinishedRecordsAfterMerge / fMergeList.size() * eSplitMB / fSplitMB / mapred_reduce_tasks;
+				rawLengthAfterMerge = totalFinishedRawLengthAfterMerge / fMergeList.size() * eSplitMB / fSplitMB / mapred_reduce_tasks;
+				compressedLengthAfterMerge = totalFinishedCompressedLengthAfterMerge / fMergeList.size() * eSplitMB / fSplitMB / mapred_reduce_tasks;
 			}
 			else {
 				recordsAfterMerge = (long) (eMerge_combine_record_ratio * recordsBeforeMerge);
@@ -389,6 +548,13 @@ public class MergeModel {
 			    */
 			}
 		}
+		
+		if(eMerge_combine_record_ratio == 0 && eMerge_combine_bytes_ratio == 0) {
+			eMerge_combine_record_ratio = (double) totalFinishedRecordsAfterMerge / totalFinishedRecordsBeforeMerge;
+			eMerge_combine_bytes_ratio = (double) totalFinishedRawLengthAfterMerge / totalFinishedRawLengthBeforeMerge;
+		}
+		eMerge.setMerge_combine_record_ratio(merge_combine_record_ratio); //need more consideration
+		eMerge.setMerge_combine_bytes_ratio(merge_combine_bytes_ratio); // need more consideration
 		return eMerge;
 	}
 }

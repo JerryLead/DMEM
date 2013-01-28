@@ -109,8 +109,9 @@ public class SplitMapperDataDiff {
 			result = Pair.generatePairs(xCompBM, xCompBMdf);
 		else if(title.equals("xRecAM"))
 			result = Pair.generatePairs(xRecAM, xRecAMdf);
-		else if(title.equals("xRawAM"))
+		else if(title.equals("xRawAM")) 
 			result = Pair.generatePairs(xRawAM, xRawAMdf);
+			
 		else if(title.equals("xCompAM"))
 			result = Pair.generatePairs(xCompAM, xCompAMdf);
 		
@@ -157,7 +158,7 @@ public class SplitMapperDataDiff {
 			xSegN.add(Integer.parseInt(value));
 		else {
 			float v = Float.parseFloat(value);
-			v = Math.abs(v); // we want to get the absolute difference
+			//v = Math.abs(v); // we want to get the absolute difference
 			if(title.equals("mInMBdf"))
 				mInMBdf.add(v);
 			else if(title.equals("mInRecdf"))
@@ -174,8 +175,10 @@ public class SplitMapperDataDiff {
 				mCompBMdf.add(v);
 			else if(title.equals("mRecAMdf"))
 				mRecAMdf.add(v);
-			else if(title.equals("mRawAMdf"))
+			else if(title.equals("mRawAMdf")) 
 				mRawAMdf.add(v);
+				
+				
 			else if(title.equals("mCompAMdf"))
 				mCompAMdf.add(v);
 			else if(title.equals("xInMBdf"))

@@ -22,7 +22,7 @@ import collector.jvmcost.JvmCostCollector;
 public class DataAndMemoryCollector {
 
 	public static void main(String[] args) {
-		String startJobId = "job_201301252338_0001";
+		String startJobId = "job_201301281455_0001";
 		String hostname = "master";
 		int iterateNum = 192;
 		//String hostname = "m105";
@@ -37,7 +37,8 @@ public class DataAndMemoryCollector {
 		//String jobName = "SampleTeraSort-1G";
 		//String jobName = "SampleWikiWordCount-1G";
 		//String jobName = "SampleBuildInvertedIndex-1G";
-		String jobName = "SampleTwitterGraphBidirectEdge";
+		//String jobName = "SampleTwitterGraphBidirectEdge";
+		String jobName = "SampleTwitterInDegreeCount";
 		//String jobName = "BigTwitterBiDirectEdgeCount";
 		//String jobName = "BigTwitterInDegreeCount";
 		//String jobName = "BigTeraSort";

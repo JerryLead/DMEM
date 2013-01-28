@@ -115,6 +115,9 @@ public class SplitDiffDataflowPlot {
 		for(int i = 0; i < list.size(); i++) {
 			dataSet[i][0] = list.get(i).getReal();
 			dataSet[i][1] = list.get(i).getEstimated();
+			
+			//if(dataSet[i][1] - dataSet[i][0] > 100)
+			//	System.out.println(dataSet[i][0] + " : " + dataSet[i][1]);
 		}
 		
 		JavaPlot p = new JavaPlot();

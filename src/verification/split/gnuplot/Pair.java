@@ -39,6 +39,7 @@ public class Pair implements Comparable<Pair> {
 			real = realList.get(i);
 			df = dfList.get(i);
 			list.add(new Pair(real, df));
+			
 		}
 		
 		return list;
