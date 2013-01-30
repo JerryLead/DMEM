@@ -482,9 +482,9 @@ public class MergeModel {
 				long compressedLengthAfterMerge;
 				
 				if(eMerge_combine_record_ratio == 0 && eMerge_combine_bytes_ratio == 0) {
-					recordsAfterMerge = finishedRecordsAfterMerge[i] / fMergeList.size() * eSplitMB / fSplitMB / mapred_reduce_tasks;
-					rawLengthAfterMerge = finishedRawLengthAfterMerge[i] / fMergeList.size() * eSplitMB / fSplitMB / mapred_reduce_tasks;
-					compressedLengthAfterMerge = finishedCompressedLengthAfterMerge[i] / fMergeList.size() * eSplitMB / fSplitMB / mapred_reduce_tasks;
+					recordsAfterMerge = finishedRecordsAfterMerge[i] / fMergeList.size() * eSplitMB / fSplitMB;
+					rawLengthAfterMerge = finishedRawLengthAfterMerge[i] / fMergeList.size() * eSplitMB / fSplitMB;
+					compressedLengthAfterMerge = finishedCompressedLengthAfterMerge[i] / fMergeList.size() * eSplitMB / fSplitMB;
 				}
 				else {
 					recordsAfterMerge = (long) (eMerge_combine_record_ratio * recordsBeforeMerge);

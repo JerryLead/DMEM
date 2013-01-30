@@ -8,26 +8,28 @@ import verification.split.dataflow.SplitDataflowComparator;
 public class VisualizerForSplitDataJvmComp {
 
 	public static void main(String[] args) {
-		//String jobName = "BuildCompIndex-m36-r18-256MB";
-		//String jobName = "BuildCompIndex-m36-r18-256MB";
-		//String jobName = "uservisits_aggre-pig-256MB";
-		//String jobName = "BuildCompIndex-m36-r18";
-		//String jobName = "Wiki-m36-r18";
-		//String jobName = "BigTwitterInDegreeCount";
-		//String jobName = "big-uservisits_aggre-pig-256MB";
-		//String jobName = "BigTwitterBiDirectEdgeCount";
-		//String jobName = "BigTeraSort";
-		//String jobName = "BigTeraSort-36GB";
-		//String jobName = "SampleTeraSort-1G";
+		/*********************************Big Experiments*********************************/
 		//String jobName = "Big-uservisits_aggre-pig-50G";
-		String jobName = "Big-uservisits_aggre-pig-50G";
+		//String jobName = "BigBuildInvertedIndex";
+		//String jobName = "BigTeraSort-36GB";
+		//String jobName = "BigTwitterBiDirectEdgeCount";
+		//String jobName = "BigTwitterInDegreeCount";
+		//String jobName = "BigWiki-m36-r18";
 		
-		String baseDir = "/home/xulijie/MR-MEM/BigExperiments/";
-		//String baseDir = "/home/xulijie/MR-MEM/SampleExperiments/";
-		//String baseDir = "/home/xulijie/MR-MEM/Test/";
+		//String baseDir = "/home/xulijie/MR-MEM/BigExperiments/";
+		/*********************************Big Experiments*********************************/
+		
+		/*********************************Sample Experiments*********************************/
+		//String jobName = "SampleBuildInvertedIndex-1G";
+		//String jobName = "SampleTeraSort-1G";
+		//String jobName = "SampleTwitterBiDirectEdgeCount";
+		//String jobName = "SampleTwitterInDegreeCount";
+		//String jobName = "SampleUservisits-1G";
+		String jobName = "SampleWikiWordCount-1G";
+		
+		String baseDir = "/home/xulijie/MR-MEM/SampleExperiments/";
 
-		//int splitMB[] = {64, 128, 256}; //set the split size to filter the finished mappers
-		
+		/*********************************Sample Experiments*********************************/
 		
 		SplitDataflowComparator dataComp = new SplitDataflowComparator(jobName, baseDir);
 		dataComp.compareDataflow();

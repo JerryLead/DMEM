@@ -18,25 +18,40 @@ public class SplitDataflowComparator {
 	private Map<String, SplitMapperDataflow> mDfMap = new HashMap<String, SplitMapperDataflow>();
 	private Map<String, SplitReducerDataflow> rDfMap = new HashMap<String, SplitReducerDataflow>();
 
-	private String jobName;
-	private String baseDir;
+	private String compJobName;
+	private String compBaseDir;
+	
+	private String bigJobName;
+	private String bigBaseDir;
 	//private int[] splitMB;
 	
 	public SplitDataflowComparator(String jobName, String baseDir) {
-		this.jobName = jobName;
-		this.baseDir = baseDir;
-		//this.splitMB = splitMB;
+		this.compJobName = jobName;
+		this.compBaseDir = baseDir;
+		
+		this.bigJobName = jobName;
+		this.bigBaseDir = baseDir;
 	}
 
+	public SplitDataflowComparator(String compJobName, String compBaseDir, String bigJobName, String bigBaseDir) {
+		this.compJobName = compJobName;
+		this.compBaseDir = compBaseDir;
+		
+		this.bigJobName = bigJobName;
+		this.bigBaseDir = bigBaseDir;
+		
+		//this.splitMB = splitMB;
+	}
+	
 	public void compareDataflow() {
-		String realDataflowDir = baseDir + jobName + "/RealDataflow/";
-		String estimatedJvmCostDir = baseDir + jobName + "/estimatedDM/";
-		String compDataflow = baseDir + jobName + "/compDataflow/";
+		String realDataflowDir = bigBaseDir + bigJobName + "/RealDataflow/";
+		String estimatedJvmCostDir = compBaseDir + compJobName + "/estimatedDM/";
+		String compDataflow = compBaseDir + compJobName + "/compDataflow/";
 
 		readFinishedDataflow(realDataflowDir);
 		compDataflow(estimatedJvmCostDir, compDataflow);
 
-		System.out.println("[" + jobName + "] dataflow comparison finished");
+		System.out.println("[" + compJobName + "] dataflow comparison finished");
 	}
 	
 	

@@ -248,6 +248,8 @@ public class MapperJvmModel {
 		
 		for(Mapper fMapper : fMapperList) {
 			List<JstatItem> jstatItemList = fMapper.getMetrics().getJstatMetricsList();
+			if(jstatItemList.isEmpty())
+				continue;
 			List<JvmItem> jvmItemList = fMapper.getMetrics().getJvmMetricsList();
 			
 			JvmModel fMapPhaseMax = computeFinishedMaxJvmCost(jstatItemList, jvmItemList);

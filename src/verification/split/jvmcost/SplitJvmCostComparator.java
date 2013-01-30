@@ -16,22 +16,37 @@ import java.util.Map;
 
 public class SplitJvmCostComparator {
 
-	private String jobName;
-	private String baseDir;
+	private String compJobName;
+	private String compBaseDir;
+	
+	private String bigJobName;
+	private String bigBaseDir;
 
 	public SplitJvmCostComparator(String jobName, String baseDir) {
-		this.jobName = jobName;
-		this.baseDir = baseDir;
+		this.compJobName = jobName;
+		this.compBaseDir = baseDir;
+		
+		this.bigJobName = jobName;
+		this.bigBaseDir = baseDir;
 	}
 
+	public SplitJvmCostComparator(String compJobName, String compBaseDir, String bigJobName, String bigBaseDir) {
+		this.compJobName = compJobName;
+		this.compBaseDir = compBaseDir;
+		
+		this.bigJobName = bigJobName;
+		this.bigBaseDir = bigBaseDir;
+		
+		//this.splitMB = splitMB;
+	}
 
 	public void compareJvmCost() {
 		String rMapperFile = "realMapper.txt";
 		String rReducerFile = "realReducer.txt";
 
-		String realJvmCostDir = baseDir + jobName + "/RealJvmCost/";
-		String estiJvmCostDir = baseDir + jobName + "/estimatedDM/";
-		String compJvmCostDir = baseDir + jobName + "/compJvmCost/";
+		String realJvmCostDir = bigBaseDir + bigJobName + "/RealJvmCost/";
+		String estiJvmCostDir = compBaseDir + compJobName + "/estimatedDM/";
+		String compJvmCostDir = compBaseDir + compJobName + "/compJvmCost/";
 		
 		List<SplitMapperRealJvmCost> rMapperJvmCostList = readRealMapperJvmCost(realJvmCostDir + rMapperFile);
 		List<SplitReducerRealJvmCost> rReducerJvmCostList = readRealReducerJvmCost(realJvmCostDir + rReducerFile);

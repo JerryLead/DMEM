@@ -2,10 +2,12 @@ package estimator.all;
 
 import hadoop.split.InputSplitCalculator;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -17,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Scanner;
 import java.util.TreeMap;
 
 import profile.commons.configuration.Configuration;
@@ -62,31 +65,72 @@ public class SelfDataAndMemoryEstimator {
 	
 	public static void main(String[] args) {
 		// -------------------------Initialize Job Information------------------------------------
-		String startJobId = "job_201301181454_0001";
 		
-		String jobName = "Big-uservisits_aggre-pig-50G";
+		/*********************************Big Experiments*********************************/
+		//String startJobId = "job_201301181454_0001";
+		//String jobName = "Big-uservisits_aggre-pig-50G";
 		
-		String baseDir = "/home/xulijie/MR-MEM/BigExperiments/";
-		//String baseDir = "/home/xulijie/MR-MEM/SampleExperiments/";
+		//String startJobId = "job_201301232026_0001";
+		//String jobName = "BigBuildInvertedIndex";
 		
-		int newRNBase = 9;
+		//String startJobId = "job_201301132344_0001";
+		//String jobName = "BigTeraSort-36GB";
+		
+		//String startJobId = "job_201301111138_0001";
+		//String jobName = "BigTwitterBiDirectEdgeCount";
+		
+		//String startJobId = "job_201301081033_0001";
+		//String jobName = "BigTwitterInDegreeCount";
+		
+		//String startJobId = "job_201301072049_0001";
+		//String jobName = "BigWiki-m36-r18";
+		
+		//String baseDir = "/home/xulijie/MR-MEM/BigExperiments/";
+		//Boolean hasSplitFile = true;
+		
+		//int newRNBase = 9;
+		//int iterateNum = 192;
+		/*********************************Big Experiments*********************************/
+	
+		
+		/*********************************Sample Experiments*********************************/
+		//String startJobId = "job_201301211121_0001";
+		//String jobName = "SampleBuildInvertedIndex-1G";
+		
+		//String startJobId = "job_201301191915_0001";
+		//String jobName = "SampleTeraSort-1G";
+		
+		//String startJobId = "job_201301252338_0001";
+		//String jobName = "SampleTwitterBiDirectEdgeCount";
+			
+		//String startJobId = "job_201301281455_0001";
+		//String jobName = "SampleTwitterInDegreeCount";
+		
+		//String startJobId = "job_201301222028_0001";
+		//String jobName = "SampleUservisits-1G";
+		
+		String startJobId = "job_201301192319_0001";
+		String jobName = "SampleWikiWordCount-1G";
+		
+		String baseDir = "/home/xulijie/MR-MEM/SampleExperiments/";
+		Boolean hasSplitFile = true;
+				
+		int newRNBase = 2;
 		int iterateNum = 192;
+		/*********************************Sample Experiments*********************************/
 		
 		int[] splitMBs = {64, 128, 256};
 		boolean outputDetailedDataflow = false;
 		
 		String outputDir = baseDir + jobName + "/estimatedDM/";
 		
-		boolean needMetrics = true; //going to analyze task counters/metrics/jvm?
-		int sampleMapperNum = 0; // only analyze the first sampleMapperNum mappers (0 means all the mappers)
-		int sampleReducerNum = 0; // only analyze the first sampleReducerNum reducers (0 means all the reducers)
+		//boolean needMetrics = true; //going to analyze task counters/metrics/jvm?
+		//int sampleMapperNum = 0; // only analyze the first sampleMapperNum mappers (0 means all the mappers)
+		//int sampleReducerNum = 0; // only analyze the first sampleReducerNum reducers (0 means all the reducers)
 		boolean useRuntimeMaxJvmHeap = false; //since reducers' actual JVM heap is less than mapred.child.java.opts, 
 											 //this parameter determines whether to use the actual JVM heap to estimate
 		
 		//--------------------------Setting ends------------------------------------
-		
-		
-		
 		DecimalFormat nf = new DecimalFormat("0000");
 		
 		for(int i = 0; i < iterateNum; i++) {
@@ -101,7 +145,7 @@ public class SelfDataAndMemoryEstimator {
 			//--------------------------Profiling ends-----------------------------
 			
 			if(splitMap.isEmpty())
-				computeSplitMap(splitMBs, je.job.getJobConfiguration(), baseDir +  jobName);
+				computeSplitMap(splitMBs, je.job.getJobConfiguration(), baseDir +  jobName, hasSplitFile);
 			//--------------------------Estimating Data Flow and Memory-----------------------------
 			if(successful == false) {
 				System.err.println("[" + jobId + "] is a failed job");
@@ -121,31 +165,63 @@ public class SelfDataAndMemoryEstimator {
 		}	
 	}
 	
-	private static void computeSplitMap(int[] splitMBs, Configuration fConf, String jobNameDir) {
-		try {
-			PrintWriter splitWriter = new PrintWriter(new BufferedWriter(new FileWriter(jobNameDir + File.separator + "splits.txt")));
-			
-			// ~/MR-MEM/BigExperiments/BigBuildInvertedIndex/split.txt
-			for(int i = 0; i < splitMBs.length; i++) {
-				int splitMB = splitMBs[i];
-				Configuration conf = fConf.copyConfiguration();
-				long newSplitSize = splitMB * 1024 * 1024l;
-				conf.set("split.size", String.valueOf(newSplitSize));
-				conf.set("mapred.min.split.size", String.valueOf(newSplitSize));
-				conf.set("mapred.max.split.size", String.valueOf(newSplitSize));
-				//setNewConf(conf);
-				List<Long> splitsSizeList = InputSplitCalculator.getSplitsLength(conf);
-				splitMap.put(splitMB, splitsSizeList);
-				splitWriter.println(splitMB + ":" + splitsSizeList);
+	private static void computeSplitMap(int[] splitMBs, Configuration fConf, String jobNameDir, Boolean hasSplitFile) {
+		if(hasSplitFile) {
+			try {
+				BufferedReader reader = new BufferedReader(new FileReader(jobNameDir + File.separator + "splits.txt"));
+				String line;
+				int splitMB;
+				long splitByte;
+				
+				while((line = reader.readLine()) != null) {
+					line = line.replaceAll("[^0-9]", " ");
+					Scanner scanner = new Scanner(line);
+
+					splitMB = scanner.nextInt();
+					List<Long> splitByteList = new ArrayList<Long>();
+					
+					while(scanner.hasNext()) {
+						splitByte = scanner.nextLong();
+						splitByteList.add(splitByte);
+					}
+					
+					splitMap.put(splitMB, splitByteList);
+				}
+				
+				reader.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			splitWriter.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
 		}
 		
-		
-		
+		else {
+			try {
+				PrintWriter splitWriter = new PrintWriter(new BufferedWriter(new FileWriter(jobNameDir + File.separator + "splits.txt")));
+				
+				// ~/MR-MEM/BigExperiments/BigBuildInvertedIndex/split.txt
+				for(int i = 0; i < splitMBs.length; i++) {
+					int splitMB = splitMBs[i];
+					Configuration conf = fConf.copyConfiguration();
+					long newSplitSize = splitMB * 1024 * 1024l;
+					conf.set("split.size", String.valueOf(newSplitSize));
+					conf.set("mapred.min.split.size", String.valueOf(newSplitSize));
+					conf.set("mapred.max.split.size", String.valueOf(newSplitSize));
+					//setNewConf(conf);
+					List<Long> splitsSizeList = InputSplitCalculator.getSplitsLength(conf);
+					splitMap.put(splitMB, splitsSizeList);
+					splitWriter.println(splitMB + ":" + splitsSizeList);
+				}
+				splitWriter.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}	
 	}
 
 	private boolean profile(String baseDir, String jobName, String jobDir, String jobId) {
@@ -207,7 +283,7 @@ public class SelfDataAndMemoryEstimator {
 							//-----------------for debug-------------------------------------------------
 						    //System.out.println("[split = " + splitMB + " [xmx = " + xmx + ", xms = " + xms + ", ismb = " + 
 							//		ismb + ", RN = " + reducer + "]");
-							//if(splitMB != 256 || xmx != 1000 || ismb != 200 || reducer != 9 || xms != 0)
+							//if(splitMB != 256 || xmx != 1000 || ismb != 200 || reducer != 18 || xms != 0)
 							//	continue;
 							//if(xmx != 4000 || xms != 1 || ismb != 1000 || reducer != 9)
 							//	continue;
