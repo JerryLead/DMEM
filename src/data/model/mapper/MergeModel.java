@@ -321,7 +321,7 @@ public class MergeModel {
 		}
 		avgfSpillInfoNum /= fSpillList.size();
 				
-		if(avgfSpillInfoNum < fMin_num_spills_for_combine && avgfSpillInfoNum != 1)
+		if(avgfSpillInfoNum < fMin_num_spills_for_combine)
 			fMergeCombine = false;
 		else
 			fMergeCombine = true;
