@@ -147,7 +147,7 @@ public class SpillModel {
 			}
 			//eSegN == 1,2
 			else {
-				int deg = ((eSplitMB / eSegN) - fSplitMB) / Math.min(eSplitMB, fSplitMB);
+				int deg = ((eSplitMB / eSegN) - (fSplitMB / fmSegN)) / Math.min((eSplitMB / eSegN), (fSplitMB / fmSegN));
 				spill_combine_record_ratio = spill_combine_record_ratio * (1 - 0.1 * deg);
 				spill_combine_bytes_ratio = spill_combine_bytes_ratio * (1 - 0.1 * deg);
 			}
@@ -156,14 +156,14 @@ public class SpillModel {
 		
 		else if(fmSegN == 2) {
 			// Note that split size is changed in this function
-			int deg = ((eSplitMB / eSegN) - fSplitMB) / Math.min(eSplitMB, fSplitMB);
+			int deg = ((eSplitMB / eSegN) - (fSplitMB / fmSegN)) / Math.min((eSplitMB / eSegN), (fSplitMB / fmSegN));
 			spill_combine_record_ratio = spill_combine_record_ratio * (1 - 0.1 * deg);
 			spill_combine_bytes_ratio = spill_combine_bytes_ratio * (1 - 0.1 * deg);
 		}
 		
 		else if(fmSegN == 1) {
 			// Note that split size is changed in this function
-			int deg = ((eSplitMB / eSegN) - fSplitMB) / Math.min(eSplitMB, fSplitMB);
+			int deg = ((eSplitMB / eSegN) - (fSplitMB / fmSegN)) / Math.min((eSplitMB / eSegN), (fSplitMB / fmSegN));
 			spill_combine_record_ratio = spill_combine_record_ratio * (1 - 0.1 * deg);
 			spill_combine_bytes_ratio = spill_combine_bytes_ratio * (1 - 0.1 * deg);
 		}		
@@ -298,7 +298,7 @@ public class SpillModel {
 			}
 			//eSegN == 1
 			else {
-				int deg = ((eSplitMB / eSegN) - fSplitMB) / Math.min(eSplitMB, fSplitMB);
+				 int deg = ((eSplitMB / eSegN) - (fSplitMB / fmSegN)) / Math.min((eSplitMB / eSegN), (fSplitMB / fmSegN));
 				spill_combine_record_ratio = spill_combine_record_ratio * (1 - 0.1 * deg);
 				spill_combine_bytes_ratio = spill_combine_bytes_ratio * (1 - 0.1 * deg);
 			}
@@ -307,14 +307,14 @@ public class SpillModel {
 		
 		else if(fmSegN == 2) {
 			// Note that split size is changed in this function
-			int deg = ((eSplitMB / eSegN) - fSplitMB) / Math.min(eSplitMB, fSplitMB);
+			int deg = ((eSplitMB / eSegN) - (fSplitMB / fmSegN)) / Math.min((eSplitMB / eSegN), (fSplitMB / fmSegN));
 			spill_combine_record_ratio = spill_combine_record_ratio * (1 - 0.1 * deg);
 			spill_combine_bytes_ratio = spill_combine_bytes_ratio * (1 - 0.1 * deg);
 		}
 		
 		else if(fmSegN == 1) {
 			// Note that split size is changed in this function
-			int deg = ((eSplitMB / eSegN) - fSplitMB) / Math.min(eSplitMB, fSplitMB);
+			int deg = ((eSplitMB / eSegN) - (fSplitMB / fmSegN)) / Math.min((eSplitMB / eSegN), (fSplitMB / fmSegN));
 			spill_combine_record_ratio = spill_combine_record_ratio * (1 - 0.1 * deg);
 			spill_combine_bytes_ratio = spill_combine_bytes_ratio * (1 - 0.1 * deg);
 		}
