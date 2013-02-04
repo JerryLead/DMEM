@@ -21,9 +21,10 @@ public class MapperEstimator {
 		this.fConf = finishedJobConf;
 		this.newConf = newConf;
 	}
-	
+
+	// Dataset size is not changed
 	public Mapper estimateNewMapper(Mapper finishedMapper) {
-		
+		long newSplitSize = finishedMapper.getInput().getSplitSize();
 		estimatedMapper = new Mapper();
 		computeConcretePhase(finishedMapper);
 		return estimatedMapper;

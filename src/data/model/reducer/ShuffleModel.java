@@ -23,7 +23,7 @@ public class ShuffleModel {
 			ShuffleInfo shuffleInfo = new ShuffleInfo(0, "attemp_" + i, "RAM", mergeInfo.getRawLengthAfterMerge(), mergeInfo.getCompressedLengthAfterMerge());
 			shuffleInfo.setRecords(mergeInfo.getRecordsAfterMerge());
 			shuffleInfoList.add(shuffleInfo);
-			
+			//System.out.println(mergeInfo.getCompressedLengthAfterMerge()/1024/1024);
 			Reduce_shuffle_bytes += mergeInfo.getCompressedLengthAfterMerge();
 			Reduce_shuffle_raw_bytes += mergeInfo.getRawLengthAfterMerge();
 			//System.out.println("[Shuffle] [" + i + "] <loc = RAM, records = " + shuffleInfo.getRecords() + ", rawLength = " 

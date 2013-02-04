@@ -65,7 +65,7 @@ public class SampleToBigDataAndMemoryEstimator {
 		
 		/*********************************Big Experiments*********************************/
 		
-		//String bigJobName = "Big-uservisits_aggre-pig-50G";
+		String bigJobName = "Big-uservisits_aggre-pig-50G";
 		
 		//String bigJobName = "BigBuildInvertedIndex";
 		
@@ -75,7 +75,7 @@ public class SampleToBigDataAndMemoryEstimator {
 		
 		//String bigJobName = "BigTwitterInDegreeCount";
 		
-		String bigJobName = "BigWiki-m36-r18";
+		//String bigJobName = "BigWiki-m36-r18";
 		
 		//String baseDir = "/home/xulijie/MR-MEM/BigExperiments/";
 		//Boolean hasSplitFile = true;
@@ -86,8 +86,8 @@ public class SampleToBigDataAndMemoryEstimator {
 	
 		
 		/*********************************Sample Experiments*********************************/
-		//String startJobId = "job_201301222028_0001";
-		//String sampleJobName = "SampleUservisits-1G";
+		String startJobId = "job_201301222028_0001";
+		String sampleJobName = "SampleUservisits-1G";
 		
 		//String startJobId = "job_201301211121_0001";
 		//String sampleJobName = "SampleBuildInvertedIndex-1G";
@@ -101,12 +101,12 @@ public class SampleToBigDataAndMemoryEstimator {
 		//String startJobId = "job_201301281455_0001";
 		//String sampleJobName = "SampleTwitterInDegreeCount";
 		
-		String startJobId = "job_201301192319_0001";
-		String sampleJobName = "SampleWikiWordCount-1G";
+		//String startJobId = "job_201301192319_0001";
+		//String sampleJobName = "SampleWikiWordCount-1G";
 		
-		String bigBaseDir = "/home/xulijie/MR-MEM/BigExperiments/";
-		String sampleBaseDir = "/home/xulijie/MR-MEM/SampleExperiments/";
-		String compBaseDir = "/home/xulijie/MR-MEM/CompExperiments/";
+		String bigBaseDir = "G:\\MR-MEM\\BigExperiments\\";
+		String sampleBaseDir = "G:\\MR-MEM\\SampleExperiments\\";
+		String compBaseDir = "G:\\MR-MEM\\CompExperiments\\";
 		//String compBaseDir = "/home/xulijie/MR-MEM/Test/";
 		
 		Boolean hasSplitFile = true;
@@ -118,7 +118,7 @@ public class SampleToBigDataAndMemoryEstimator {
 		int[] splitMBs = {64, 128, 256};
 		boolean outputDetailedDataflow = false;
 		
-		String outputDir = compBaseDir + "SampleTo" + bigJobName + "/estimatedDM/";
+		String outputDir = compBaseDir + "SampleTo" + bigJobName + "\\estimatedDM\\";
 		
 		//boolean needMetrics = true; //going to analyze task counters/metrics/jvm?
 		//int sampleMapperNum = 0; // only analyze the first sampleMapperNum mappers (0 means all the mappers)
@@ -279,7 +279,7 @@ public class SampleToBigDataAndMemoryEstimator {
 							//-----------------for debug-------------------------------------------------
 						    //System.out.println("[split = " + splitMB + " [xmx = " + xmx + ", xms = " + xms + ", ismb = " + 
 							//		ismb + ", RN = " + reducer + "]");
-							//if(splitMB != 256 || xmx != 2000 || ismb != 800 || reducer != 9 || xms != 0)
+							//if(splitMB != 256 || xmx != 1000 || ismb != 200 || reducer != 9 || xms != 1)
 							//	continue;
 							//if(xmx != 4000 || xms != 1 || ismb != 1000 || reducer != 9)
 							//	continue;
@@ -662,10 +662,9 @@ public class SampleToBigDataAndMemoryEstimator {
 		//do not need to consider split size
 		else {
 			//assume all the sampled mappers' input split size is normal
-			int fMappersNum = job.getMapperList().size();
 			
 			for(int i = 0; i < splitsSizeList.size(); i++) {
-				Mapper newMapper = mapperEstimator.estimateNewMapper(job.getMapperList().get(i % fMappersNum));
+				Mapper newMapper = mapperEstimator.estimateNewMapper(job.getMapperList(), splitsSizeList.get(i));
 				newMapperList.add(newMapper);
 			}
 			
@@ -727,32 +726,34 @@ public class SampleToBigDataAndMemoryEstimator {
 		MapperEstimatedJvmCost jvmCost;
 		
 		long splitSizeMB = newConf.getSplitSize() / (1024 * 1024);
+		List<Mapper> filterFMapperList = filterSmallSplitSize(job.getMapperList());
 		
 		//split size is changed
-		if(isSplitSizeChanged) {
-			Map<Long, MapperEstimatedJvmCost> cacheJvmCost = new HashMap<Long, MapperEstimatedJvmCost>();
-			List<Mapper> filterFMapperList = filterSmallSplitSize(job.getMapperList());
+		//if(isSplitSizeChanged) {
+		Map<Long, MapperEstimatedJvmCost> cacheJvmCost = new HashMap<Long, MapperEstimatedJvmCost>();
+		
+		
+		for(int i = 0; i < eMappers.size(); i++) {
+			Mapper eMapper = eMappers.get(i);
 			
-			for(int i = 0; i < eMappers.size(); i++) {
-				Mapper eMapper = eMappers.get(i);
-				
-				long cSplitMB = eMapper.getInput().getSplitSize() / (1024 * 1024) ; //HDFS_BYTES_READ
-				
-				if(cSplitMB >= splitSizeMB) {
-					if(!cacheJvmCost.containsKey(cSplitMB)) {
-						// only estimate the mappers with normal split size
-						jvmCost = memoryEstimator.estimateJvmCost(filterFMapperList, eMapper);	
-						cacheJvmCost.put(cSplitMB, jvmCost); 
-					}
-					else
-						jvmCost = cacheJvmCost.get(cSplitMB);
-					mappersJvmCostList.add(jvmCost);
+			long cSplitMB = eMapper.getInput().getSplitSize() / (1024 * 1024) ; //HDFS_BYTES_READ
+			
+			if(cSplitMB >= splitSizeMB) {
+				if(!cacheJvmCost.containsKey(cSplitMB)) {
+					// only estimate the mappers with normal split size
+					jvmCost = memoryEstimator.estimateJvmCost(filterFMapperList, eMapper);	
+					cacheJvmCost.put(cSplitMB, jvmCost); 
 				}
-				
+				else
+					jvmCost = cacheJvmCost.get(cSplitMB);
+				mappersJvmCostList.add(jvmCost);
 			}
-		}
+			
+		}	
+		//}
 		
 		//do not need to consider split size
+		/*
 		else {
 			int fMappersNum = job.getMapperList().size();
 			
@@ -768,7 +769,8 @@ public class SampleToBigDataAndMemoryEstimator {
 						mappersJvmCostList.add(jvmCost);
 				}		
 			}		
-		}				
+		}		
+		*/		
 
 		return mappersJvmCostList;
 	}
